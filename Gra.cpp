@@ -2,6 +2,7 @@
 #include "Gra.h"
 #include <iostream>
 #include <stdlib.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -48,6 +49,16 @@ void Gra::setLicznik(int licznik)
 	this->licznik = licznik;
 }
 
+void Gra::setIsMaxPlayer(bool isMaxPlayer)
+{
+	this->isMaxPlayer = isMaxPlayer;
+}
+
+bool Gra::getIsMaxPlayer()
+{
+	return this->isMaxPlayer;
+}
+
 int Gra::getLicznik()
 {
 	return this->licznik;
@@ -68,13 +79,13 @@ char ** Gra::getPlansza()
 	return this->plansza;
 }
 
-bool Gra::wygrana(char **plansza, char gracz, int size)
+int Gra::wygrana(char **plansza, char gracz, int size) // dla gracza 'X' zwraca 10. dla 'O' zwraca -10
 {
-	bool test = false;
+	bool test = true;
 	int i, j;
 
-	// Zmienna przyjmuje true, jeœli zawodnik ma trzy figury
-				 // w wierszu, kolumnie lub na przek¹tnych
+	// Zmienna przyjmuje true, jeÅ›li zawodnik ma trzy figury
+				 // w wierszu, kolumnie lub na przekÄ…tnych
 
 				 // Sprawdzamy wiersze
 
@@ -84,7 +95,8 @@ bool Gra::wygrana(char **plansza, char gracz, int size)
 
 			else test = true;
 		}
-		if (test) return 1;
+		if (test  == true && gracz == 'X') return 10;
+		else if (test == true && gracz == 'O') return -10;
 	}
 
 	// Sprawdzamy kolumny  
@@ -94,51 +106,145 @@ bool Gra::wygrana(char **plansza, char gracz, int size)
 			if (plansza[j][i] != gracz) { test = false; break; }
 			else test = true;
 		}
-		if (test) return 1;
+		if (test == true && gracz == 'X') return 10;
+		else if (test == true && gracz == 'O') return -10;
 
 	}
 
-	// Sprawdzamy przek¹tn¹ lewo-prawo
+	// Sprawdzamy przekÄ…tnÄ… lewo-prawo
 	for (i = 0; i < size; i++) {
 		if (plansza[i][i] != gracz) { test = false; break; }
 		else test = true;
 	}
-	if (test) return 1;
+	if (test == true && gracz == 'X') return 10;
+	else if (test == true && gracz == 'O') return -10;
 
 
 
-	// Sprawdzamy przek¹tn¹ prawo- lewo
+	// Sprawdzamy przekÄ…tnÄ… prawo- lewo
 	for (i = size - 1; i >= 0; i--) {
 
 		if (plansza[i][i] != gracz) { test = false; break; }
 		else test = true;
 	}
-	if (test) return 1;
-
-	return 0;
+	if (test == true && gracz == 'X') return 10;
+	else if (test == true && gracz == 'O') return -10;
+	
+	if (!isMove(plansza, size)) return 0;
 }
 
-void Gra::ruch(char ** plansza, char gracz, int size)
+bool Gra::isMove(char ** plansza, int size)
 {
-	int RuchX, RuchY, licznik;
-	gracz = (gracz == 'X') ? 'O' : 'X';
-	setGracz(gracz);
-	cout << "Kolej na ruch gracza " << gracz << endl;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (plansza[i][j] == '-') return true;
+		}
+	}
+	return false;
+}
+
+void Gra::makeRuch(char **plansza, int wiersz, int kolumna)
+{
+	if (!isMove(plansza, size)) return;
+	plansza[wiersz][kolumna] = this->gracz;
+	int score = wygrana(plansza, this->gracz, size);
+	Show(size);
+	if ( score == 10) cout << "koniec gry" << endl << "WYGRAl GRACZ X'";
+	else if(score == -10) cout << "koniec gry" << endl << "WYGRAl GRACZ O'";
+	setLicznik(getLicznik() + 1);
+	if (this->licznik == size*size) cout << "koniec gry" << endl << "REMIS!!! '" << this->gracz << "'";
+	this->gracz = (this->gracz == 'O') ? 'X' : 'O';
+	setGracz(this->gracz);
+}
+
+void Gra::ruchCzlowiek(char ** plansza, int size)
+{
+	int RuchX, RuchY;
+	
+	cout << "Kolej na ruch gracza " << this->gracz << endl;
 	cout << "Podaj wiersz oraz kolumne ruchu (W,K) : ";
 	cin >> RuchY >> RuchX;
-	plansza[RuchY][RuchX] = gracz;
-	if (wygrana(plansza, gracz, size) == 1) cout << "koniec gry" << endl << "WYGRAl GRACZ '" << gracz << "'";
-	setLicznik(getLicznik()+1);
-	Show(size);
+	//plansza[RuchY][RuchX] = gracz;
+
+	makeRuch(plansza, RuchY, RuchX);
+	
 	
 }
 
 void Gra::Show(int size)
 {
-	system("cls");
+	//system("cls");
 	for (int i = 0; i < size; i++) {			
 		cout << endl;
 		for (int j = 0; j < size; j++) { cout << plansza[i][j] << " | "; }
 	}
+	cout << "\n\n\n";
+}
 
+int Gra::minmax(char ** plansza, int depth, char gracz)
+{
+	//TODO zamien bool wygrana na int wygrana, zeby tu mozna bylo sprawdzac czy koniec gry dla wartosci ruchow +10/-10
+	int value = 0;
+	int score = wygrana(plansza, gracz, this->size);
+
+	if (score == 10) return score;
+	if (score == -10) return score;
+	if(score == 0) return score;
+
+	if (gracz == 'X') {
+		int bestValue = -100;
+
+		for (int i = 0; i < this->size; i++) {
+			for (int j = 0; j < this->size; j++) {
+				if (plansza[i][j] == '-') {
+					plansza[i][j] = 'X';
+					value = minmax(plansza, depth + 1, 'O');
+					bestValue = max(bestValue, value);
+					plansza[i][j] = '-';
+				}
+			}
+		}
+		return bestValue;
+	}
+	else if (gracz == 'O') {
+		int bestValue = 100;
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (plansza[i][j] == '-') {
+					plansza[i][j] = 'O';
+					value = minmax(plansza, depth + 1, 'X');
+					bestValue = min(bestValue, value);
+					plansza[i][j] = '-';
+				}
+			}
+		}
+		return bestValue;
+	}
+}
+
+Pole Gra::RuchPC(char ** plansza, int size)
+{
+	int bestValue = 1000;
+	Pole bestMove;
+	bestMove.wiersz = -1;
+	bestMove.kolumna = -1;
+
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (plansza[i][j] == '-') {
+				plansza[i][j] = this->gracz;
+				int value = minmax(plansza, 0, 'X');
+				plansza[i][j] = '-';
+				if (value < bestValue) {
+					bestValue = value;
+					bestMove.wiersz = i;
+					bestMove.kolumna = j;
+				}
+			}
+		}
+	}
+
+	makeRuch(plansza, bestMove.wiersz, bestMove.kolumna); //TODO upakowac dwie linie ponizej do funkcji makeRuch
+	return bestMove;
 }
