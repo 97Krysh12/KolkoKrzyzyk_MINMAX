@@ -12,7 +12,7 @@ class Gra
 {
 public:
 	// Konstruktor i Destruktor
-	Gra(int size, char gracz);
+	Gra(char gracz);
 	~Gra();
 
 	// Settery
@@ -35,6 +35,7 @@ public:
 	void makeRuch(char **plansza, int wiersz, int kolumna); // wpisuje symbol gracza w odpowiednie miejsce na planszy
 	void ruchCzlowiek(char **plansza, int size); // umozliwia ruch czlowieka
 	void Show(int size); // pokazuje plansze w konsoli
+	void Ustawienia();
 
 	int wygrana(char **, char gracz, int size); // sprawdza warunki konca gry i zwyciestwa
 	bool isMove(char **plansza, int size);
@@ -45,5 +46,6 @@ private:
 	char **plansza; 
 	char gracz; // 'x' lub 'o' 
 	bool isMaxPlayer; // przyjmuje wartosc 1 jesli gracz maksymalizujacy. 0 jesli inaczej
+	int zRzedu;
 };
 
