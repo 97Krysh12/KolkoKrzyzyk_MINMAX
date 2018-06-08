@@ -6,9 +6,10 @@
 
 using namespace std;
 
-Gra::Gra(int size, char gracz)
+Gra::Gra(char gracz)
 {
-	setSize(size);
+	Ustawienia();
+	//setSize(size);
 	setGracz(gracz);
 	setLicznik(0);
 	this->plansza = new char*[size];
@@ -91,34 +92,63 @@ char ** Gra::getPlansza()
 int Gra::wygrana(char **plansza, char gracz, int size) // dla gracza 'X' zwraca 10. dla 'O' zwraca -10
 {
 	bool test = true;
-	int i, j;
+	int licznik_K = 0, licznik_W = 0;
+	int i = 0, j = 0;
 
 	// Zmienna przyjmuje true, jeśli zawodnik ma trzy figury
 				 // w wierszu, kolumnie lub na przekątnych
 
 	 // Sprawdzamy wiersze
 
-	for (i = 0; i < size; i++) {
-		for (j = 0; j < size; j++) {
-			if (plansza[i][j] != gracz) { test = false; break; }
+	
+	while (i != size +1 && j != size +1) {
+		for (i = licznik_W; i < zRzedu + licznik_W; i++) {
 
-			else test = true;
+			for (j = licznik_K; j < zRzedu + licznik_K; j++) {
+
+				if (plansza[i][j] != gracz) { j = zRzedu + licznik_K -1;  test = false; break; } // j = zRzedu + licznik_K;
+
+				else test = true;
+			}
+			//if (i == zRzedu + licznik_K) licznik_K++;
+			//if (j = zRzedu + licznik_K) licznik_K++;
+
+
+			if (test == true && gracz == 'X') return 10;
+			else if (test == true && gracz == 'O') return -10;
 		}
-		if (test  == true && gracz == 'X') return 10;
-		else if (test == true && gracz == 'O') return -10;
-	}
-
-	// Sprawdzamy kolumny  
-
-	for (i = 0; i < size; i++) {
-		for (j = 0; j < size; j++) {
-			if (plansza[j][i] != gracz) { test = false; break; }
-			else test = true;
+		licznik_W++;
+		if (i == size ) {
+			licznik_W = 0;
+			licznik_K ++;
 		}
-		if (test == true && gracz == 'X') return 10;
-		else if (test == true && gracz == 'O') return -10;
-
+		
 	}
+	 licznik_K = 0;
+	 licznik_W = 0;
+	 i = 0;
+	 j = 0;
+
+	 // Sprawdzamy kolumny  
+	 while (i != size  && j != size) {
+		 for (i = licznik_W; i < (zRzedu + licznik_W); i++) {
+
+			 for (j = licznik_K; j < (zRzedu + licznik_K); j++) {
+				 if (plansza[j][i] != gracz) { j = zRzedu + licznik_K -1;  test = false; break; }
+				 else test = true;
+			 }
+			 if (test == true && gracz == 'X') return 10;
+			 else if (test == true && gracz == 'O') return -10;
+
+		 }
+
+		 licznik_W++;
+		 if (i == size ) {
+			 licznik_W = 0;
+			 licznik_K++;
+		 }
+
+	 }
 
 	// Sprawdzamy przekątną lewo-prawo
 	for (i = 0; i < size; i++) {
@@ -195,6 +225,17 @@ void Gra::Show(int size)
 		for (int j = 0; j < size; j++) { cout << "|" << plansza[i][j] << " | "; }
 	}
 	cout << "\n\n\n";
+}
+
+void Gra::Ustawienia()
+{
+	int wymiar, zRzedu;
+	cout << "Podaj wymiar planszy: ";
+	cin >> wymiar;
+	cout << "ile znakow z rzedu wygrywa: ";
+	cin >> zRzedu;
+	this->size = wymiar;
+	this->zRzedu = zRzedu;
 }
 
 int Gra::minmax(char ** plansza, int depth, char gracz, int bestValueMax, int bestValueMin)
