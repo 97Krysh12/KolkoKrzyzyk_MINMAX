@@ -30,7 +30,7 @@ public:
 
 	
 	int minmax(char **plansza, int depth, char gracz, int bestValueMax, int bestValueMin); // algorytm minimax znajduje optymalny ruch
-
+	bool isKoniec(char **plansza);
 	Pole RuchPC(char **plansza, int size); // wykorzystuje alg. minmax do znalezienia optymalnego ruchu PC
 	void makeRuch(char **plansza, int wiersz, int kolumna); // wpisuje symbol gracza w odpowiednie miejsce na planszy
 	void ruchCzlowiek(char **plansza, int size); // umozliwia ruch czlowieka
