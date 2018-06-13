@@ -6,22 +6,33 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdlib.h>
+#include <conio.h>
 
 using namespace std;
 
 int main()
 {
 	system("color 5B");
-	Gra g1('X'); /////////DO TESTOW NA RAZIE 'X' TO CZLOWIEK i 'O' TO PC
-	while (g1.isMove(g1.getPlansza(), g1.getSize()))
-	{
-		if (g1.wygrana(g1.getPlansza(), 'X', g1.getSize()) == 10) break;
-		if(g1.wygrana(g1.getPlansza(), 'O', g1.getSize()) == -10) break;
+	int wybor = 0;
+	bool playAgain = true;
+
+	while (playAgain) {
+		Gra *nowaGra = new Gra('X');
+		nowaGra->menu();
+		cin >> wybor;
+		switch (wybor) {
+		case 1: { nowaGra->graczVsGracz(); break; }
+		case 2: { nowaGra->graczVsPC(); break; }
+		default: break;
+			delete nowaGra;
+		}
+
+		cout << "\nczy chcialbys zagrac jescze raz? :\n";
+		cout << "1.tak \n";
+		cout << "0.nie \n wybierz: ";
+		cin >> playAgain;
 		
-		g1.ruchCzlowiek(g1.getPlansza(), g1.getSize());
-		//if (g1.isKoniec(g1.getPlansza())) break;
-		//if (g1.isKoniec(g1.getPlansza()) == 1)  cout << "KURWA";
-		g1.RuchPC(g1.getPlansza(), g1.getSize());
+		system("cls");
 	}
 	cout << endl;
 	system("pause");
